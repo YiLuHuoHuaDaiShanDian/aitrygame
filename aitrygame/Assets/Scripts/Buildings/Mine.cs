@@ -4,8 +4,10 @@ public class Mine : Building
 {
     public int productionAmount = 5;
 
+    public override string BuildingId => "Mine";
+
     protected override void Produce()
     {
-        ResourceManager.Instance.Add(productionAmount);
+        GameManager.Instance.AddResource("Gold", productionAmount);
     }
 }

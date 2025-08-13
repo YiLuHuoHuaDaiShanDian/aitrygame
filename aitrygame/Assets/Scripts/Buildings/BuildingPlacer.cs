@@ -13,10 +13,11 @@ public class BuildingPlacer : MonoBehaviour
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundMask))
             {
-                if (ResourceManager.Instance.Spend(buildingPrefab.constructionCost))
+                if (GameManager.Instance.SpendResource("Gold", buildingPrefab.constructionCost))
                 {
                     Building building = Instantiate(buildingPrefab);
                     building.Place(hit.point);
+                    GameManager.Instance.AddBuilding(building.BuildingId);
                 }
                 else
                 {

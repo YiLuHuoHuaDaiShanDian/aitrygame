@@ -2,51 +2,27 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager instance;
-    public static GameManager Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = FindObjectOfType<GameManager>();
-                if (instance == null)
-                {
-                    GameObject go = new GameObject("GameManager");
-                    instance = go.AddComponent<GameManager>();
-                }
-            }
-            return instance;
-        }
-    }
+    public static GameManager Instance { get; private set; }
+
+    public SaveData SaveData { get; private set; }
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        instance = this;
+        Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        SaveData = SaveSystem.Load();
         InitializeSystems();
     }
 
     private void InitializeSystems()
     {
-        InitializeResourceSystem();
-        InitializeSaveSystem();
-    }
-
-    private void InitializeResourceSystem()
-    {
-        // TODO: Initialize resource system
         Debug.Log("Resource system initialized.");
-    }
-
-    private void InitializeSaveSystem()
-    {
-        // TODO: Initialize save system
         Debug.Log("Save system initialized.");
     }
 
@@ -55,35 +31,36 @@ public class GameManager : MonoBehaviour
         float deltaTime = Time.deltaTime;
         // TODO: Advance main loop using deltaTime
     }
-    
-    public SaveData saveData;
-
-    private void Awake()
-    {
-        saveData = SaveSystem.Load();
-    }
 
     public void AddResource(string resource, int amount)
     {
-        if (saveData.resources.ContainsKey(resource))
-            saveData.resources[resource] += amount;
+        if (SaveData.resources.ContainsKey(resource))
+            SaveData.resources[resource] += amount;
         else
-            saveData.resources[resource] = amount;
+            SaveData.resources[resource] = amount;
     }
 
     public int GetResource(string resource)
     {
-        return saveData.resources.TryGetValue(resource, out var value) ? value : 0;
+        return SaveData.resources.TryGetValue(resource, out var value) ? value : 0;
+    }
+
+    public bool SpendResource(string resource, int amount)
+    {
+        int current = GetResource(resource);
+        if (current < amount) return false;
+        SaveData.resources[resource] = current - amount;
+        return true;
     }
 
     public void AddBuilding(string buildingId)
     {
-        saveData.buildings.Add(buildingId);
+        SaveData.buildings.Add(buildingId);
     }
 
     public void SaveGame()
     {
-        SaveSystem.Save(saveData);
+        SaveSystem.Save(SaveData);
     }
 
     private void OnApplicationQuit()
@@ -91,4 +68,3 @@ public class GameManager : MonoBehaviour
         SaveGame();
     }
 }
-
