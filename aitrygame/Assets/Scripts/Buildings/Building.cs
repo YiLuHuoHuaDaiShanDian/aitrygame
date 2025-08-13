@@ -9,6 +9,8 @@ public abstract class Building : MonoBehaviour
     public Vector3 PlacementPosition { get; private set; }
     private float timer;
 
+    public virtual string BuildingId => GetType().Name;
+
     public virtual void Place(Vector3 position)
     {
         PlacementPosition = position;
